@@ -58,7 +58,7 @@ See [LLM_PROVIDERS.md](LLM_PROVIDERS.md) for detailed configuration guide.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/PhishScope.git
+git clone https://github.ibm.com/ITZHAKCH/PhishScope.git
 cd PhishScope
 
 # Install dependencies
@@ -173,9 +173,9 @@ If you use PhishScope in your research, please cite:
 ```bibtex
 @software{phishscope2026,
   title={PhishScope: Evidence-Driven Phishing Analysis Agent},
-  author={Your Name},
+  author={Itzhak Chechik},
   year={2026},
-  url={https://github.com/yourusername/PhishScope}
+  url={https://github.ibm.com/ITZHAKCH/PhishScope}
 }
 ```
 
@@ -188,9 +188,9 @@ Please use GitHub Issues for:
 
 ## 📞 Contact
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Twitter: [@yourhandle](https://twitter.com/yourhandle)
-- Email: security@example.com
+- GitHub: [@ITZHAKCH](https://github.ibm.com/ITZHAKCH)
+- Email: itzhakch@ibm.com
+
 
 ## 🙏 Acknowledgments
 
