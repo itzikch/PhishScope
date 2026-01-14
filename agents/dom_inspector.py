@@ -1,0 +1,219 @@
+"""
+DOMInspectorAgent - Analyzes DOM structure for phishing indicators
+"""
+
+import logging
+import json
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+from playwright.async_api import Page
+
+
+class DOMInspectorAgent:
+    """
+    Inspects DOM for phishing indicators:
+    - Login forms and password fields
+    - Hidden inputs and overlays
+    - Suspicious iframes
+    - DOM mutations after page load
+    """
+    
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+        
+    async def inspect(self, page: Optional[Page], output_dir: Path) -> Dict[str, Any]:
+        """
+        Analyze DOM structure for phishing indicators
+        
+        Args:
+            page: Playwright page object
+            output_dir: Directory to save artifacts
+            
+        Returns:
+            Dictionary containing DOM analysis findings
+        """
+        findings = {
+            "forms_count": 0,
+            "password_fields": [],
+            "hidden_inputs": [],
+            "suspicious_iframes": [],
+            "overlays": [],
+            "dom_mutations": [],
+            "evidence": []
+        }
+        
+        if not page:
+            self.logger.warning("No page context provided to DOM inspector")
+            return findings
+        
+        try:
+            # Detect forms
+            forms = await self._detect_forms(page)
+            findings["forms_count"] = len(forms)
+            findings["forms"] = forms
+            
+            # Detect password fields
+            password_fields = await self._detect_password_fields(page)
+            findings["password_fields"] = password_fields
+            
+            # Detect hidden inputs
+            hidden_inputs = await self._detect_hidden_inputs(page)
+            findings["hidden_inputs"] = hidden_inputs
+            
+            # Detect suspicious iframes
+            iframes = await self._detect_iframes(page)
+            findings["suspicious_iframes"] = iframes
+            
+            # Detect overlays
+            overlays = await self._detect_overlays(page)
+            findings["overlays"] = overlays
+            
+            # Save DOM snapshot
+            dom_html = await page.content()
+            dom_path = output_dir / "artifacts"
+            dom_path.mkdir(exist_ok=True)
+            with open(dom_path / "dom_snapshot.html", "w", encoding="utf-8") as f:
+                f.write(dom_html)
+            
+            # Generate evidence
+            findings["evidence"] = self._generate_evidence(findings)
+            
+            self.logger.info(f"DOM inspection complete: {len(findings['evidence'])} findings")
+            
+        except Exception as e:
+            self.logger.error(f"DOM inspection failed: {str(e)}")
+            findings["error"] = str(e)
+        
+        return findings
+    
+    async def _detect_forms(self, page: Page) -> List[Dict[str, Any]]:
+        """Detect all forms on the page"""
+        forms = await page.evaluate("""
+            () => {
+                const forms = Array.from(document.querySelectorAll('form'));
+                return forms.map((form, idx) => ({
+                    index: idx,
+                    action: form.action || 'none',
+                    method: form.method || 'get',
+                    id: form.id || null,
+                    class: form.className || null,
+                    input_count: form.querySelectorAll('input').length,
+                    has_password: form.querySelector('input[type="password"]') !== null,
+                    has_email: form.querySelector('input[type="email"]') !== null,
+                    has_submit: form.querySelector('input[type="submit"], button[type="submit"]') !== null
+                }));
+            }
+        """)
+        return forms
+    
+    async def _detect_password_fields(self, page: Page) -> List[Dict[str, Any]]:
+        """Detect password input fields"""
+        password_fields = await page.evaluate("""
+            () => {
+                const fields = Array.from(document.querySelectorAll('input[type="password"]'));
+                return fields.map((field, idx) => ({
+                    index: idx,
+                    id: field.id || null,
+                    name: field.name || null,
+                    placeholder: field.placeholder || null,
+                    autocomplete: field.autocomplete || null,
+                    required: field.required,
+                    visible: field.offsetParent !== null
+                }));
+            }
+        """)
+        return password_fields
+    
+    async def _detect_hidden_inputs(self, page: Page) -> List[Dict[str, Any]]:
+        """Detect hidden input fields"""
+        hidden_inputs = await page.evaluate("""
+            () => {
+                const fields = Array.from(document.querySelectorAll('input[type="hidden"]'));
+                return fields.map((field, idx) => ({
+                    index: idx,
+                    name: field.name || null,
+                    value: field.value || null,
+                    id: field.id || null
+                }));
+            }
+        """)
+        return hidden_inputs
+    
+    async def _detect_iframes(self, page: Page) -> List[Dict[str, Any]]:
+        """Detect iframes (potential for clickjacking)"""
+        iframes = await page.evaluate("""
+            () => {
+                const frames = Array.from(document.querySelectorAll('iframe'));
+                return frames.map((frame, idx) => ({
+                    index: idx,
+                    src: frame.src || null,
+                    width: frame.width || null,
+                    height: frame.height || null,
+                    sandbox: frame.sandbox.value || null,
+                    hidden: frame.style.display === 'none' || frame.style.visibility === 'hidden'
+                }));
+            }
+        """)
+        return iframes
+    
+    async def _detect_overlays(self, page: Page) -> List[Dict[str, Any]]:
+        """Detect suspicious overlays or modals"""
+        overlays = await page.evaluate("""
+            () => {
+                const elements = Array.from(document.querySelectorAll('div, section'));
+                const overlays = elements.filter(el => {
+                    const style = window.getComputedStyle(el);
+                    return (
+                        (style.position === 'fixed' || style.position === 'absolute') &&
+                        (parseInt(style.zIndex) > 1000 || style.zIndex === 'auto') &&
+                        (parseInt(style.width) > 300 || parseInt(style.height) > 300)
+                    );
+                });
+                return overlays.map((el, idx) => ({
+                    index: idx,
+                    id: el.id || null,
+                    class: el.className || null,
+                    position: window.getComputedStyle(el).position,
+                    zIndex: window.getComputedStyle(el).zIndex,
+                    has_form: el.querySelector('form') !== null
+                }));
+            }
+        """)
+        return overlays
+    
+    def _generate_evidence(self, findings: Dict[str, Any]) -> List[str]:
+        """Generate human-readable evidence from findings"""
+        evidence = []
+        
+        if findings["forms_count"] > 0:
+            evidence.append(f"Found {findings['forms_count']} form(s) on the page")
+            
+            for form in findings.get("forms", []):
+                if form["has_password"]:
+                    action = form["action"]
+                    if action and action != "none":
+                        evidence.append(f"Form submits credentials to: {action}")
+                    else:
+                        evidence.append("Form with password field has no action (likely JavaScript-based submission)")
+        
+        if findings["password_fields"]:
+            evidence.append(f"Detected {len(findings['password_fields'])} password input field(s)")
+        
+        if findings["hidden_inputs"]:
+            evidence.append(f"Found {len(findings['hidden_inputs'])} hidden input field(s)")
+        
+        if findings["suspicious_iframes"]:
+            evidence.append(f"Detected {len(findings['suspicious_iframes'])} iframe(s) - potential clickjacking risk")
+        
+        if findings["overlays"]:
+            evidence.append(f"Found {len(findings['overlays'])} overlay element(s) - may be used to hide legitimate content")
+        
+        return evidence
+
+
+# TODO: Add detection for DOM mutation observers
+# TODO: Add detection for dynamically injected forms
+# TODO: Add detection for fake address bar overlays
+# TODO: Add detection for disabled right-click or DevTools blocking
+
+# Made with Bob

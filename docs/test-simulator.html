@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishScope Simulator Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            color: #f1f5f9;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #8b5cf6;
+        }
+        #output {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: monospace;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #06b6d4; }
+    </style>
+</head>
+<body>
+    <h1>PhishScope Simulator Test</h1>
+    <p>Enter a URL to test the simulator functionality:</p>
+    
+    <div class="input-group">
+        <input type="url" id="urlInput" placeholder="https://example.com" value="https://example.com/">
+        <button id="analyzeBtn">Analyze URL</button>
+    </div>
+    
+    <div>
+        <label>
+            <input type="checkbox" id="simulateMode" checked> Simulation Mode
+        </label>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const simulateMode = document.getElementById('simulateMode');
+        const output = document.getElementById('output');
+
+        console.log('Script loaded');
+        console.log('Button:', analyzeBtn);
+        console.log('Input:', urlInput);
+
+        analyzeBtn.addEventListener('click', function() {
+            console.log('Button clicked!');
+            const url = urlInput.value.trim();
+            
+            output.innerHTML = '<p class="info">Starting analysis...</p>';
+            
+            if (!url) {
+                output.innerHTML = '<p class="error">Please enter a URL</p>';
+                return;
+            }
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                output.innerHTML = '<p class="error">Please enter a valid URL starting with http:// or https://</p>';
+                return;
+            }
+            
+            output.innerHTML += '<p class="success">✓ URL validated: ' + url + '</p>';
+            output.innerHTML += '<p class="info">Simulation mode: ' + (simulateMode.checked ? 'ON' : 'OFF') + '</p>';
+            
+            if (simulateMode.checked) {
+                runSimulation(url);
+            } else {
+                output.innerHTML += '<p class="error">Real mode not available in web interface</p>';
+            }
+        });
+
+        function runSimulation(url) {
+            output.innerHTML += '<p class="success">✓ [1/5] Loading page...</p>';
+            setTimeout(() => {
+                output.innerHTML += '<p class="success">✓ [2/5] Inspecting DOM...</p>';
+            }, 500);
+            setTimeout(() => {
+                output.innerHTML += '<p class="success">✓ [3/5] Analyzing JavaScript...</p>';
+            }, 1000);
+            setTimeout(() => {
+                output.innerHTML += '<p class="success">✓ [4/5] Analyzing network traffic...</p>';
+            }, 1500);
+            setTimeout(() => {
+                output.innerHTML += '<p class="success">✓ [5/5] Generating report...</p>';
+            }, 2000);
+            setTimeout(() => {
+                output.innerHTML += '<p class="success">✅ Analysis complete!</p>';
+                output.innerHTML += '<p class="info">Forms detected: 0</p>';
+                output.innerHTML += '<p class="info">Suspicious JS patterns: 0</p>';
+                output.innerHTML += '<p class="info">Exfiltration endpoints: 0</p>';
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
