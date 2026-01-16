@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  phishscope:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phishscope
+    ports:
+      - "8070:8070"
+    volumes:
+      - ./reports:/app/reports
+      - ./.env:/app/.env:ro
+    environment:
+      - LLM_PROVIDER=${LLM_PROVIDER:-watsonx}
+      - WATSONX_API_KEY=${WATSONX_API_KEY}
+      - WATSONX_PROJECT_ID=${WATSONX_PROJECT_ID}
+      - WATSONX_API_ENDPOINT=${WATSONX_API_ENDPOINT:-https://us-south.ml.cloud.ibm.com}
+      - WATSONX_MODEL_ID=${WATSONX_MODEL_ID:-ibm/granite-3-8b-instruct}
+      - RITS_API_KEY=${RITS_API_KEY}
+      - RITS_API_BASE_URL=${RITS_API_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REPORTS_DIR=/app/reports
+      - API_PORT=8070
+      - DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8070/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Security: Run as non-root user
+    # user: "1000:1000"
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Optional: Frontend service (when React frontend is built)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: phishscope-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - phishscope
+  #   environment:
+  #     - VITE_API_URL=http://phishscope:8070
+
+volumes:
+  reports:

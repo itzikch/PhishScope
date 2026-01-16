@@ -1,0 +1,64 @@
+[project]
+name = "phishscope"
+version = "0.1.0"
+description = "Evidence-driven phishing analysis agent for SOC analysts and threat researchers"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    {name = "Barha Meherun Pritha", email = "barha.meherun.pritha@ibm.com"}
+]
+license = {text = "MIT"}
+keywords = ["phishing", "security", "analysis", "soc", "threat-intelligence"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "click>=8.1.0",
+    "fastapi>=0.115.0",
+    "langchain>=0.3.0",
+    "langchain-ibm>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "langchain-ollama>=0.2.0",
+    "langgraph>=0.2.0",
+    "playwright>=1.41.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "rich>=13.7.0",
+    "uvicorn>=0.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "pre-commit>=3.0.0",
+    "pylint>=3.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.black]
+line-length = 100
+
+[project.scripts]
+phishscope = "phishscope.cli.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phishscope"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
