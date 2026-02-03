@@ -1,0 +1,157 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov pytest-mock
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+        playwright install-deps chromium
+    
+    - name: Run unit tests
+      run: |
+        pytest tests/ -v -m "unit" --cov=agents --cov=utils --cov-report=xml --cov-report=term-missing
+    
+    - name: Run integration tests (without browser)
+      run: |
+        pytest tests/ -v -m "integration and not requires_browser" --cov=agents --cov=utils --cov-append --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  test-with-browser:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov pytest-mock pytest-playwright
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+        playwright install-deps chromium
+    
+    - name: Run browser integration tests
+      run: |
+        pytest tests/ -v -m "requires_browser" --cov=agents --cov-report=xml --cov-report=term-missing
+      timeout-minutes: 10
+    
+    - name: Upload browser test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: browser-tests
+        fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort mypy
+    
+    - name: Run flake8
+      run: |
+        flake8 agents/ utils/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 agents/ utils/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+    
+    - name: Check code formatting with black
+      run: |
+        black --check agents/ utils/
+      continue-on-error: true
+    
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only agents/ utils/
+      continue-on-error: true
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run bandit security scan
+      run: |
+        bandit -r agents/ utils/ -f json -o bandit-report.json
+      continue-on-error: true
+    
+    - name: Check dependencies for vulnerabilities
+      run: |
+        safety check --json
+      continue-on-error: true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json

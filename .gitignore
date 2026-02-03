@@ -177,4 +177,7 @@ extensions_storage/
 .bob/
 .playwright-mcp/
 *.db
+
+# PhishScope analysis reports
+reports/
 .DS_Store
