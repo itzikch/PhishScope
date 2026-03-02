@@ -197,7 +197,6 @@ reports/
 - **SOC Analysis** - Investigate reported phishing URLs
 - **Threat Research** - Study phishing techniques and TTPs
 - **Training** - Demonstrate phishing mechanics
-- **Arsenal Demos** - Live phishing analysis at security conferences
 
 ## 🛠️ Technical Stack
 
@@ -222,33 +221,6 @@ PhishScope loads potentially malicious content. Always run in:
 
 **Never analyze phishing URLs on your primary workstation.**
 
-## 🤝 Contributing
-
-Contributions welcome! Areas of interest:
-- Additional detection patterns
-- Performance optimizations
-- Documentation improvements
-- Test coverage
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## 📄 License
-
-PhishScope is released under the MIT License. See [LICENSE](LICENSE) for details.
-
-## 🎓 Research & Citations
-
-If you use PhishScope in your research, please cite:
-
-```bibtex
-@software{phishscope2026,
-  title={PhishScope: Evidence-Driven Phishing Analysis Agent},
-  author={Itzhak Chechik},
-  year={2026},
-  url={https://github.com/itzikch/PhishScope}
-}
-```
-
 ## 🐛 Bug Reports & Feature Requests
 
 Please use GitHub Issues for:
@@ -259,16 +231,6 @@ Please use GitHub Issues for:
 ## 📞 Contact
 
 - GitHub: [@itzikch](https://github.com/itzikch)
-- Email: itzhakch@ibm.com
 
-
-## 🙏 Acknowledgments
-
-Built for the security research community. Special thanks to:
-- SOC analysts who inspired this tool
-- Open-source contributors
-- Black Hat Arsenal reviewers
-
----
 
 **⚠️ Disclaimer**: PhishScope is for authorized security research and analysis only. Users are responsible for compliance with applicable laws and regulations.
