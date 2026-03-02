@@ -4,6 +4,14 @@
 
 PhishScope is an open-source tool designed for SOC analysts and threat researchers to analyze phishing webpages the way a human investigator would. Instead of providing binary classifications, PhishScope produces detailed investigation reports with concrete forensic evidence.
 
+## 📸 Screenshots
+
+![PhishScope Dashboard](docs/screenshot1.png)
+
+![PhishScope Analysis](docs/screenshot2.png)
+
+![PhishScope Debate Mode](docs/screenshot3.png)
+
 ## 🎯 What PhishScope Does
 
 PhishScope automatically:
