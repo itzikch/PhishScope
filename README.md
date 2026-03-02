@@ -12,6 +12,7 @@ PhishScope automatically:
 - Analyzes JavaScript behavior for credential theft patterns
 - Monitors network traffic for data exfiltration
 - Generates human-readable investigation reports
+- **Runs adversarial AI debates** to reach a verdict from multiple perspectives
 
 ## 🚫 What PhishScope Does NOT Do
 
@@ -40,6 +41,8 @@ PhishScope supports **multiple LLM providers** for intelligent phishing analysis
 **Supported Providers:**
 - **IBM WatsonX** - Enterprise-grade AI with Granite models
 - **RITS** - OpenAI-compatible API with custom models
+- **OpenAI** - GPT models via OpenAI API
+- **Ollama** - Local models (no API key required)
 
 **AI Capabilities:**
 - AI-powered phishing assessment with confidence scoring
@@ -47,10 +50,55 @@ PhishScope supports **multiple LLM providers** for intelligent phishing analysis
 - Attack methodology analysis
 - Threat intelligence generation
 - Security recommendations
+- **Multi-agent adversarial debate** for deeper analysis
 
 **Easy Provider Switching:** Simply change `LLM_PROVIDER` in `.env` - no code changes needed!
 
-See [LLM_PROVIDERS.md](LLM_PROVIDERS.md) for detailed configuration guide.
+## 🥊 Multi-Agent Debate Mode
+
+PhishScope features an **adversarial debate system** where three specialized AI agents analyze a URL through structured argumentation — providing a more thorough and transparent verdict than a single AI call.
+
+### How It Works
+
+```
+1. Page Scraping    → Collect forensic evidence
+2. Prosecutor 🔴   → Opening arguments (phishing indicators)
+3. Defense 🟢      → Opening arguments (legitimacy indicators)
+4. Prosecutor 🔴   → Rebuttal to defense
+5. Defense 🟢      → Rebuttal to prosecution
+6. Judge ⚖️        → Final ruling with risk score (0–100)
+```
+
+### The Three Agents
+
+| Agent | Role | Focus |
+|-------|------|-------|
+| 🔴 **Prosecutor** | Argues the site IS phishing | Typosquatting, SSL issues, urgency language, suspicious forms |
+| 🟢 **Defense Attorney** | Argues the site IS legitimate | Valid SSL, professional design, logical purpose |
+| ⚖️ **Judge** | Issues final verdict | Weighs both sides, outputs risk score + verdict |
+
+### Verdict Types
+
+- **PHISHING** 🚨 - Strong evidence of malicious intent
+- **SUSPICIOUS** ⚠️ - Inconclusive, warrants further investigation
+- **LEGITIMATE** ✅ - No significant phishing indicators found
+
+### Real-Time Streaming
+
+The debate streams live via **Server-Sent Events (SSE)** — watch the analysis unfold argument by argument in the web UI.
+
+### API Usage
+
+```bash
+POST /api/analyze/debate
+Content-Type: application/json
+
+{"url": "https://suspicious-site.example.com"}
+```
+
+Response is an SSE stream with events: `scrape_done`, `agent`, `verdict`, `done`.
+
+See [DEBATE_MODE.md](DEBATE_MODE.md) for full documentation.
 
 ## 🚀 Quick Start
 
@@ -58,11 +106,11 @@ See [LLM_PROVIDERS.md](LLM_PROVIDERS.md) for detailed configuration guide.
 
 ```bash
 # Clone the repository
-git clone https://github.ibm.com/ITZHAKCH/PhishScope.git
+git clone https://github.com/itzikch/PhishScope.git
 cd PhishScope
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -e .
 
 # Install Playwright browsers
 playwright install chromium
@@ -73,9 +121,6 @@ playwright install chromium
 ```bash
 # Analyze a suspicious URL (with AI if configured)
 phishscope analyze https://suspicious-site.example.com
-
-# Use enhanced CLI with beautiful formatting
-python phishscope_cli.py analyze https://suspicious-site.example.com
 
 # Specify output directory
 phishscope analyze https://suspicious-site.example.com --output ./reports/case001
@@ -89,7 +134,7 @@ phishscope analyze https://suspicious-site.example.com --no-ai
 
 ### Web Interface (React + Vite)
 
-PhishScope includes a modern React web UI with real-time analysis!
+PhishScope includes a modern React web UI with real-time analysis and debate mode!
 
 ```bash
 # Quick start - automated setup and launch
@@ -113,12 +158,14 @@ npm run dev
 
 **Web UI Features:**
 - 🎯 Real-time URL analysis with progress tracking
+- 🥊 **Multi-agent debate mode** with live streaming
 - 📊 Interactive results dashboard
 - 🖼️ Screenshot viewer
 - 📝 Detailed findings panels (DOM, JS, Network)
 - 🤖 AI analysis results (when configured)
 - 📄 Markdown report viewer
 - 📱 Responsive design with TailwindCSS
+- 🌙 Dark/light theme toggle
 
 See [START_WEB_UI.md](START_WEB_UI.md) for detailed setup instructions.
 
@@ -198,7 +245,7 @@ If you use PhishScope in your research, please cite:
   title={PhishScope: Evidence-Driven Phishing Analysis Agent},
   author={Itzhak Chechik},
   year={2026},
-  url={https://github.ibm.com/ITZHAKCH/PhishScope}
+  url={https://github.com/itzikch/PhishScope}
 }
 ```
 
@@ -211,7 +258,7 @@ Please use GitHub Issues for:
 
 ## 📞 Contact
 
-- GitHub: [@ITZHAKCH](https://github.ibm.com/ITZHAKCH)
+- GitHub: [@itzikch](https://github.com/itzikch)
 - Email: itzhakch@ibm.com
 
 
