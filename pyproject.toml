@@ -5,7 +5,7 @@ description = "Evidence-driven phishing analysis agent for SOC analysts and thre
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    {name = "Barha Meherun Pritha", email = "barha.meherun.pritha@ibm.com"}
+    {name = "Itzhak Chechik"}
 ]
 license = {text = "MIT"}
 keywords = ["phishing", "security", "analysis", "soc", "threat-intelligence"]
