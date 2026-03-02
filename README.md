@@ -14,13 +14,6 @@ PhishScope automatically:
 - Generates human-readable investigation reports
 - **Runs adversarial AI debates** to reach a verdict from multiple perspectives
 
-## 🚫 What PhishScope Does NOT Do
-
-- ML-based URL classification
-- Reputation scoring
-- Email analysis
-- Real-time blocking
-
 ## 🏗️ Architecture
 
 PhishScope uses a modular agent-based architecture with optional AI enhancement:
