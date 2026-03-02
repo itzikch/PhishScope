@@ -1,16 +1,10 @@
 # PhishScope 🔍
 
+![PhishScope Analysis](docs/screenshot2.png)
 **Evidence-Driven Phishing Analysis Agent**
 
+
 PhishScope is an open-source tool designed for SOC analysts and threat researchers to analyze phishing webpages the way a human investigator would. Instead of providing binary classifications, PhishScope produces detailed investigation reports with concrete forensic evidence.
-
-## 📸 Screenshots
-
-![PhishScope Dashboard](docs/screenshot1.png)
-
-![PhishScope Analysis](docs/screenshot2.png)
-
-![PhishScope Debate Mode](docs/screenshot3.png)
 
 ## 🎯 What PhishScope Does
 
@@ -59,6 +53,8 @@ PhishScope supports **multiple LLM providers** for intelligent phishing analysis
 
 PhishScope features an **adversarial debate system** where three specialized AI agents analyze a URL through structured argumentation — providing a more thorough and transparent verdict than a single AI call.
 
+![PhishScope Debate Mode](docs/screenshot3.png)
+
 ### How It Works
 
 ```
@@ -83,6 +79,8 @@ PhishScope features an **adversarial debate system** where three specialized AI 
 - **PHISHING** 🚨 - Strong evidence of malicious intent
 - **SUSPICIOUS** ⚠️ - Inconclusive, warrants further investigation
 - **LEGITIMATE** ✅ - No significant phishing indicators found
+
+![PhishScope Dashboard](docs/screenshot1.png)
 
 ### Real-Time Streaming
 
