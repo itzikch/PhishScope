@@ -87,17 +87,40 @@ phishscope analyze https://suspicious-site.example.com --verbose
 phishscope analyze https://suspicious-site.example.com --no-ai
 ```
 
-### Web Interface
+### Web Interface (React + Vite)
+
+PhishScope includes a modern React web UI with real-time analysis!
 
 ```bash
-# Start web application
-python web_app.py
+# Quick start - automated setup and launch
+./start_web_ui.sh
 
-# Or use the startup script
-./start_web.sh
+# Or manual setup:
+# 1. Install package in editable mode
+pip install -e .
 
-# Visit http://localhost:8070
+# 2. Start backend API (Terminal 1)
+uvicorn src.phishscope.api.main:app --host 0.0.0.0 --port 8070 --reload
+
+# 3. Start frontend dev server (Terminal 2)
+cd frontend
+npm install  # First time only
+npm run dev
+
+# Visit http://localhost:3000 (frontend)
+# API docs at http://localhost:8070/docs
 ```
+
+**Web UI Features:**
+- 🎯 Real-time URL analysis with progress tracking
+- 📊 Interactive results dashboard
+- 🖼️ Screenshot viewer
+- 📝 Detailed findings panels (DOM, JS, Network)
+- 🤖 AI analysis results (when configured)
+- 📄 Markdown report viewer
+- 📱 Responsive design with TailwindCSS
+
+See [START_WEB_UI.md](START_WEB_UI.md) for detailed setup instructions.
 
 ## 📊 Output Format
 

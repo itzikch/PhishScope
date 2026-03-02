@@ -33,13 +33,16 @@ class Settings:
 
     # RITS Configuration
     RITS_API_KEY: Optional[str] = os.getenv("RITS_API_KEY")
-    RITS_API_BASE_URL: str = os.getenv("RITS_API_BASE_URL", "http://9.46.81.185:4000")
+    RITS_API_BASE_URL: str = os.getenv("RITS_API_BASE_URL", "")
 
     # OpenAI Configuration
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
 
     # Ollama Configuration
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+
+    # VirusTotal Configuration
+    VIRUSTOTAL_API_KEY: Optional[str] = os.getenv("VIRUSTOTAL_API_KEY")
 
     # Application Configuration
     REPORTS_DIR: Path = Path(os.getenv("REPORTS_DIR", "./reports"))

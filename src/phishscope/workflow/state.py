@@ -5,8 +5,9 @@ This module defines the state structure and status enum for the phishing analysi
 """
 
 from enum import Enum
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Annotated
 from typing_extensions import TypedDict
+from langgraph.graph import add_messages
 
 
 class WorkflowStatus(str, Enum):
@@ -18,7 +19,7 @@ class WorkflowStatus(str, Enum):
     FAILED = "failed"
 
 
-class WorkflowState(TypedDict):
+class WorkflowState(TypedDict, total=False):
     """
     Represents the state of a phishing analysis workflow.
 
@@ -49,7 +50,7 @@ class WorkflowState(TypedDict):
     network_findings: Optional[Dict]
     ai_findings: Optional[Dict]
     report_path: Optional[str]
-    status: WorkflowStatus
+    status: str
     start_time: Optional[str]
     end_time: Optional[str]
     error: Optional[str]

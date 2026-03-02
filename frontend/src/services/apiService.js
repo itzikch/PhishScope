@@ -1,20 +1,34 @@
-const API_BASE = import.meta.env.VITE_API_URL || ''
+const API_BASE = 'http://localhost:8070'
 
 export async function analyzeUrl(url) {
-  const response = await fetch(`${API_BASE}/api/analyze`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ url }),
-  })
+  try {
+    const response = await fetch(`${API_BASE}/api/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url }),
+    })
 
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.detail || 'Analysis failed')
+    if (!response.ok) {
+      let errorMessage = 'Analysis failed'
+      try {
+        const error = await response.json()
+        errorMessage = error.detail || error.message || errorMessage
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = `Server error: ${response.status} ${response.statusText}`
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error.message) {
+      throw error
+    }
+    throw new Error('Network error: Could not connect to server')
   }
-
-  return response.json()
 }
 
 export async function getResults(analysisId) {

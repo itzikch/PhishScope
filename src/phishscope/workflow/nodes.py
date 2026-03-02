@@ -115,6 +115,12 @@ async def dom_analysis_node(state: WorkflowState) -> Command:
         analyzer = DOMAnalyzer()
         findings = await analyzer.analyze(page=page_context, output_dir=output_dir)
 
+        # Log findings for debugging
+        logger.debug(f"DOM findings keys: {list(findings.keys())}")
+        logger.debug(f"DOM findings summary: forms={findings.get('forms_count')}, "
+                    f"password_fields={len(findings.get('password_fields', []))}, "
+                    f"evidence={len(findings.get('evidence', []))}")
+
         return Command(
             goto=JS_ANALYSIS_NODE,
             update={"dom_findings": findings},
@@ -149,6 +155,12 @@ async def js_analysis_node(state: WorkflowState) -> Command:
         analyzer = JavaScriptAnalyzer()
         findings = await analyzer.analyze(page=page_context, output_dir=output_dir)
 
+        # Log findings for debugging
+        logger.debug(f"JS findings keys: {list(findings.keys())}")
+        logger.debug(f"JS findings summary: inline={findings.get('inline_scripts_count')}, "
+                    f"external={findings.get('external_scripts_count')}, "
+                    f"suspicious={len(findings.get('suspicious_patterns', []))}")
+
         return Command(
             goto=NETWORK_ANALYSIS_NODE,
             update={"js_findings": findings},
@@ -178,6 +190,12 @@ async def network_analysis_node(state: WorkflowState) -> Command:
         analyzer = NetworkAnalyzer()
         findings = await analyzer.analyze(network_log=network_log, output_dir=output_dir)
 
+        # Log findings for debugging
+        logger.debug(f"Network findings keys: {list(findings.keys())}")
+        logger.debug(f"Network findings summary: total_requests={findings.get('total_requests')}, "
+                    f"post_requests={len(findings.get('post_requests', []))}, "
+                    f"exfiltration={len(findings.get('exfiltration_candidates', []))}")
+
         return Command(
             goto=AI_ANALYSIS_NODE,
             update={"network_findings": findings},
@@ -199,11 +217,17 @@ async def ai_analysis_node(state: WorkflowState) -> Command:
     from phishscope.llm.clients import get_chat_llm_client, is_llm_available
     from phishscope.llm.prompts import build_assessment_prompt
 
-    dom_findings = state.get("dom_findings", {})
-    js_findings = state.get("js_findings", {})
-    network_findings = state.get("network_findings", {})
+    # Get findings with defaults to avoid None values
+    dom_findings = state.get("dom_findings") or {}
+    js_findings = state.get("js_findings") or {}
+    network_findings = state.get("network_findings") or {}
 
     try:
+        # Log what we received for debugging
+        logger.debug(f"AI analysis received - DOM keys: {list(dom_findings.keys())}, "
+                    f"JS keys: {list(js_findings.keys())}, "
+                    f"Network keys: {list(network_findings.keys())}")
+
         if not is_llm_available():
             logger.info("LLM not available, using fallback assessment")
             findings = _fallback_assessment(dom_findings, js_findings, network_findings)
